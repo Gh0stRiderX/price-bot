@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/chromedp/chromedp"
 	"strconv"
+	"time"
 )
 
 type Bol struct {
@@ -54,6 +55,7 @@ func (b *Bol) getPrice(ctx context.Context) (string, error) {
 func (b *Bol) getBolPriceActionList(price *string) []chromedp.Action {
 	return []chromedp.Action{
 		chromedp.Navigate(b.productUrl),
-		chromedp.InnerHTML("[data-test='price'] font font", price),
+		chromedp.Sleep(2 * time.Second),
+		chromedp.Evaluate("document.getElementsByClassName(\"promo-price\")[0].innerText.split('\\n')[0]", price),
 	}
 }

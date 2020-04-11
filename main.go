@@ -49,7 +49,7 @@ func main() {
 
 	go fetch(taskCtx, 30*time.Second, 0*time.Second, notifier, &MediaMarkt{
 		productUrl: "https://www.mediamarkt.nl/nl/product/_nintendo-switch-rood-en-blauw-2019-revisie-1635020.html",
-		minPrice:   900,
+		minPrice:   330,
 	})
 
 	go fetch(taskCtx, 30*time.Second, 1*time.Second, notifier, &Bol{

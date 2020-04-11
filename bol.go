@@ -56,6 +56,6 @@ func (b *Bol) getPriceActionList(price *string) []chromedp.Action {
 	return []chromedp.Action{
 		chromedp.Navigate(b.productUrl),
 		chromedp.Sleep(2 * time.Second),
-		chromedp.Evaluate("document.getElementsByClassName(\"promo-price\")[0].innerText.split('\\n')[0]", price),
+		chromedp.Evaluate("(document.getElementsByClassName(\"promo-price\") || [{innerText: '999'}])[0].innerText.split('\\n')[0]", price),
 	}
 }

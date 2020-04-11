@@ -33,17 +33,6 @@ var (
 	port                = flag.Int("port", 8091, "port on which Prometheus metrics (/prometheus) are exposed")
 )
 
-func init() {
-	prometheus.MustRegister(
-		mediamarktLastSync,
-		mediamarktLastPrice,
-		bolLastSync,
-		bolLastPrice,
-		coolblueLastSync,
-		coolblueLastPrice,
-	)
-}
-
 func main() {
 	flag.Parse()
 

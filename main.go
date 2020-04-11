@@ -56,6 +56,11 @@ func main() {
 		minPrice:   330,
 	})
 
+	go fetch(taskCtx, 30*time.Second, 2*time.Second, notifier, &CoolBlue{
+		productUrl: "https://www.coolblue.nl/en/product/838252/nintendo-switch-2019-upgrade-red-blue.html",
+		minPrice:   330,
+	})
+
 	select {} // infinite waiting
 }
 

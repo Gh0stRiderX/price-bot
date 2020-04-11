@@ -1,7 +1,7 @@
-FROM chromedp/headless-shell:latest
+FROM docker.pkg.github.com/archangelx360/price-bot/base
 
-COPY price-bot /usr/bin/price-bot
+ADD price-bot .
 
 EXPOSE 8091
 
-ENTRYPOINT ["sh", "-c", "price-bot"]
+ENTRYPOINT ["sh", "-c", "./price-bot"]

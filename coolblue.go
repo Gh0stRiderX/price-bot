@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/chromedp/chromedp"
 	"strconv"
+	"strings"
 )
 
 type CoolBlue struct {
@@ -35,7 +36,8 @@ func (cb *CoolBlue) FetchPrice(ctx context.Context) (int, error) {
 }
 
 func (cb *CoolBlue) convertPrice(price string) (int, error) {
-	p, err := strconv.Atoi(price)
+	roundedUp := strings.Split(price, ",")[0]
+	p, err := strconv.Atoi(roundedUp)
 	if err != nil {
 		return -1, err
 	}
@@ -54,6 +56,7 @@ func (cb *CoolBlue) getPrice(ctx context.Context) (string, error) {
 func (cb *CoolBlue) getPriceActionList(price *string) []chromedp.Action {
 	return []chromedp.Action{
 		chromedp.Navigate(cb.productUrl),
-		chromedp.InnerHTML(".sales-price__current", price),
+		// chromedp.WaitEnabled(".sales-price"),
+		chromedp.Evaluate("document.getElementsByClassName(\"sales-price__current\")[0].innerHTML", price),
 	}
 }

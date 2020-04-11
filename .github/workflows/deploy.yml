@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Bundling Golang for Linux
+        run: GOOS=linux CGOENABLED=false go build . -o /out/price-bot
+      - uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+          repository: docker.pkg.github.com/${{ github.repository }}
+          tag_with_ref: true
+          tag_with_sha: true
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enabling traffic
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script_stop: true
+          script: |
+            docker stop ${{ github.repository }}
+            docker rm ${{ github.repository }}
+            docker run -d --name=${{ github.repository }} docker.pkg.github.com/${{ github.repository }}:latest

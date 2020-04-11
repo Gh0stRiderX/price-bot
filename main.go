@@ -84,7 +84,6 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 			} else {
 				debugLogger.Printf("[%s] don't buy %d\n", w.Name(), price)
 			}
-			infoLogger.Printf("[%s] Price checked", w.Name())
 		}
 		cancel()
 		time.Sleep(frequency)

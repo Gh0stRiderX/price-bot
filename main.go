@@ -28,7 +28,7 @@ type Website interface {
 }
 
 var (
-	stmpOptionsFilepath = flag.String("smtp-filepath", "smtp.json", "filepath to JSON SMTP options used to send the price notifications")
+	stmpOptionsFilepath = flag.String("smtp-filepath", "/opt/config/smtp.json", "filepath to JSON SMTP options used to send the price notifications")
 	port                = flag.Int("port", 8091, "port on which Prometheus metrics (/prometheus) are exposed")
 )
 

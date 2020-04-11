@@ -51,6 +51,11 @@ func main() {
 		minPrice:   330,
 	})
 
+	go fetch(taskCtx, 30*time.Second, 2*time.Second, notifier, &Bol{
+		productUrl: "https://www.bol.com/nl/p/nintendo-switch-console-met-35-eshop-tegoed-voucher-32gb-rood-blauw/9200000114613417/",
+		minPrice:   330,
+	})
+
 	select {} // infinite waiting
 }
 

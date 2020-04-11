@@ -4,4 +4,6 @@ COPY price-bot /usr/bin/price-bot
 
 VOLUME /opt/price-bot/config /opt/config
 
-ENTRYPOINT ["sh", "-c", "price-bot", "-smtp-filepath=/opt/config/smtp.json"]
+EXPOSE 8091
+
+ENTRYPOINT ["sh", "-c", "price-bot", "-smtp-filepath=/opt/config/smtp.json -port=8091"]

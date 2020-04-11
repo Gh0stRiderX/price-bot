@@ -4,8 +4,13 @@ import (
 	"context"
 	"flag"
 	"github.com/chromedp/chromedp"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/cors"
 	"log"
+	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -24,17 +29,25 @@ type Website interface {
 }
 
 var (
-	stmpOptionsFilepath string
+	stmpOptionsFilepath = flag.String("smtp-filepath", "smtp.json", "filepath to JSON SMTP options used to send the price notifications")
+	port                = flag.Int("port", 8091, "port on which Prometheus metrics (/prometheus) are exposed")
 )
 
 func init() {
-	flag.StringVar(&stmpOptionsFilepath, "smtp-filepath", "smtp.json", "filepath to JSON SMTP options used to send the price notifications")
+	prometheus.MustRegister(
+		mediamarktLastSync,
+		mediamarktLastPrice,
+		bolLastSync,
+		bolLastPrice,
+		coolblueLastSync,
+		coolblueLastPrice,
+	)
 }
 
 func main() {
 	flag.Parse()
 
-	notifier := NewSmtpNotifier(stmpOptionsFilepath)
+	notifier := NewSmtpNotifier(*stmpOptionsFilepath)
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.UserAgent("Pricebot/1.0"),
@@ -61,7 +74,11 @@ func main() {
 		minPrice:   330,
 	})
 
-	select {} // infinite waiting
+	mux := http.NewServeMux()
+	mux.Handle("/prometheus", promhttp.Handler())
+
+	handler := cors.Default().Handler(mux)
+	errorLogger.Fatal(http.ListenAndServe(":"+strconv.Itoa(*port), handler))
 }
 
 func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Duration, notifier Notifier, w Website) {

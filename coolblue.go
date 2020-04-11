@@ -29,6 +29,8 @@ func (cb *CoolBlue) FetchPrice(ctx context.Context) (int, error) {
 	if err != nil {
 		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
 	}
+	coolblueLastPrice.Set(float64(p))
+	coolblueLastSync.SetToCurrentTime()
 	return p, nil
 }
 

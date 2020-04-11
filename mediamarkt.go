@@ -29,6 +29,8 @@ func (m *MediaMarkt) FetchPrice(ctx context.Context) (int, error) {
 	if err != nil {
 		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
 	}
+	mediamarktLastPrice.Set(float64(p))
+	mediamarktLastSync.SetToCurrentTime()
 	return p, nil
 }
 

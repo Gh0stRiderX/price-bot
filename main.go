@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"github.com/chromedp/chromedp"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"log"
@@ -74,7 +73,9 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 	infoLogger.Printf("[%s] Starting fetching routine in %v", w.Name(), initialDelay)
 	time.Sleep(initialDelay)
 	for {
-		price, err := w.FetchPrice(ctx)
+		infoLogger.Printf("[%s] Checking price...", w.Name())
+		newTab, cancel := chromedp.NewContext(ctx)
+		price, err := w.FetchPrice(newTab)
 		if err != nil {
 			errorLogger.Printf("[%s] %v", w.Name(), err)
 		} else {
@@ -83,8 +84,9 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 			} else {
 				debugLogger.Printf("[%s] don't buy %d\n", w.Name(), price)
 			}
+			infoLogger.Printf("[%s] Price checked", w.Name())
 		}
-
+		cancel()
 		time.Sleep(frequency)
 	}
 }

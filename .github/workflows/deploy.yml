@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Bundling Golang for Linux
-        run: GOOS=linux CGOENABLED=false go build -o /out/price-bot .
+        run: GOOS=linux CGOENABLED=false go build -o price-bot .
       - uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}

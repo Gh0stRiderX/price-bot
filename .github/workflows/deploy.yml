@@ -36,4 +36,4 @@ jobs:
             docker rm price-bot || true
             docker login -u ${{ github.actor }} -p ${{ github.token }} docker.pkg.github.com
             docker pull docker.pkg.github.com/archangelx360/price-bot/bot:latest
-            docker run -d --name=price-bot docker.pkg.github.com/archangelx360/price-bot/bot:latest
+            docker run -d -v /opt/price-bot/config:/opt/config --name=price-bot docker.pkg.github.com/archangelx360/price-bot/bot:latest

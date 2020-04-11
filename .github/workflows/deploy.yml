@@ -16,15 +16,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
           registry: docker.pkg.github.com
-          path: ./base-chrome
-          repository: archangelx360/price-bot/base
-          tag_with_ref: true
-          tag_with_sha: true
-      - uses: docker/build-push-action@v1
-        with:
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-          registry: docker.pkg.github.com
           repository: archangelx360/price-bot/bot
           tag_with_ref: true
           tag_with_sha: true

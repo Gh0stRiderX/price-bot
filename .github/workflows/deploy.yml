@@ -34,4 +34,5 @@ jobs:
           script: |
             docker stop price-bot || true
             docker rm price-bot || true
+            docker login -u ${{ github.actor }} -p ${{ github.token }}
             docker run -d --name=price-bot docker.pkg.github.com/archangelx360/price-bot/bot:latest

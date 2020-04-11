@@ -45,14 +45,14 @@ func (b *Bol) convertPrice(price string) (int, error) {
 
 func (b *Bol) getPrice(ctx context.Context) (string, error) {
 	var price string
-	err := chromedp.Run(ctx, b.getBolPriceActionList(&price)...)
+	err := chromedp.Run(ctx, b.getPriceActionList(&price)...)
 	if err != nil {
 		return "", err
 	}
 	return price, nil
 }
 
-func (b *Bol) getBolPriceActionList(price *string) []chromedp.Action {
+func (b *Bol) getPriceActionList(price *string) []chromedp.Action {
 	return []chromedp.Action{
 		chromedp.Navigate(b.productUrl),
 		chromedp.Sleep(2 * time.Second),

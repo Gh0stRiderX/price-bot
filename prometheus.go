@@ -30,4 +30,20 @@ var (
 		Name: "price_bot_coolblue_last_price",
 		Help: "Last price observed on CoolBlue",
 	})
+	amazonNLLastSync = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "price_bot_amazon_nl_last_sync",
+		Help: "The timestamp on which Amazon NL price was last synced",
+	})
+	amazonNLLastPrice = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "price_bot_amazon_nl_last_price",
+		Help: "Last price observed on Amazon NL",
+	})
+	amazonFRLastSync = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "price_bot_amazon_fr_last_sync",
+		Help: "The timestamp on which Amazon FR price was last synced",
+	})
+	amazonFRLastPrice = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "price_bot_amazon_fr_last_price",
+		Help: "Last price observed on Amazon FR",
+	})
 )

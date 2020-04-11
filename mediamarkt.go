@@ -45,7 +45,7 @@ func (m *MediaMarkt) convertPrice(price string) (int, error) {
 func (m *MediaMarkt) getPrice(ctx context.Context) (string, error) {
 	var price string
 	var ok bool
-	err := chromedp.Run(ctx, m.getMediaMarkPriceActionList(&price, &ok)...)
+	err := chromedp.Run(ctx, m.getPriceActionList(&price, &ok)...)
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +55,7 @@ func (m *MediaMarkt) getPrice(ctx context.Context) (string, error) {
 	return price, nil
 }
 
-func (m *MediaMarkt) getMediaMarkPriceActionList(price *string, ok *bool) []chromedp.Action {
+func (m *MediaMarkt) getPriceActionList(price *string, ok *bool) []chromedp.Action {
 	return []chromedp.Action{
 		chromedp.Navigate(m.productUrl),
 		chromedp.AttributeValue("[itemprop='price']", "content", price, ok),

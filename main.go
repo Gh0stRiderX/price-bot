@@ -62,6 +62,22 @@ func main() {
 		minPrice:   330,
 	})
 
+	go fetch(taskCtx, 30*time.Second, 5*time.Second, notifier, &Amazon{
+		productUrl:     "https://www.amazon.nl/Nintendo-Switch-Console-Rood-Blauw/dp/B07WKNQ8JT",
+		minPrice:       330,
+		country:        "NL",
+		lastPriceGauge: amazonNLLastPrice,
+		lastSyncGauge:  amazonNLLastSync,
+	})
+
+	go fetch(taskCtx, 30*time.Second, 5*time.Second, notifier, &Amazon{
+		productUrl:     "https://www.amazon.fr/Nintendo-Switch-Console-Rood-Blauw/dp/B07WKNQ8JT",
+		minPrice:       330,
+		country:        "FR",
+		lastPriceGauge: amazonFRLastPrice,
+		lastSyncGauge:  amazonFRLastSync,
+	})
+
 	mux := http.NewServeMux()
 	mux.Handle("/prometheus", promhttp.Handler())
 

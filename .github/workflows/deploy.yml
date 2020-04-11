@@ -32,6 +32,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script_stop: true
           script: |
-            docker stop price-bot
-            docker rm price-bot
+            docker stop price-bot || true
+            docker rm price-bot || true
             docker run -d --name=price-bot docker.pkg.github.com/archangelx360/price-bot/bot:latest

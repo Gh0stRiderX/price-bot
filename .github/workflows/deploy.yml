@@ -16,7 +16,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
           registry: docker.pkg.github.com
-          repository: ${{ github.repository }}
+          repository: archangelx360/price-bot
           tag_with_ref: true
           tag_with_sha: true
   deploy:
@@ -32,6 +32,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script_stop: true
           script: |
-            docker stop ${{ github.repository }}
-            docker rm ${{ github.repository }}
-            docker run -d --name=${{ github.repository }} docker.pkg.github.com/${{ github.repository }}:latest
+            docker stop archangelx360/price-bot
+            docker rm archangelx360/price-bot
+            docker run -d --name=archangelx360/price-bot docker.pkg.github.com/archangelx360/price-bot:latest

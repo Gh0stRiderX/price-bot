@@ -1,4 +1,4 @@
-FROM docker.pkg.github.com/archangelx360/price-bot/base
+FROM docker.pkg.github.com/archangelx360/price-bot/base:latest
 
 ADD price-bot .
 

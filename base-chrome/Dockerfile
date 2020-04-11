@@ -1,4 +1,4 @@
-FROM arm32v7/debian:latest
+FROM raspbian/stretch
 
 RUN \
     apt-get update -y \

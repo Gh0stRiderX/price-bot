@@ -34,7 +34,7 @@ func NewSmtpNotifier(stmpOptionsFilepath string) *SmtpNotifier {
 }
 
 func (n *SmtpNotifier) Notify(websiteName string, price int) {
-	infoLogger.Printf("[%s] OMG BUY: %d", websiteName, price)
+	infoLogger.Printf("[%s] The product is available at price: %d", websiteName, price)
 
 	recipients := []string{n.options.To}
 	subject := fmt.Sprintf("[%s] AVAILABLE AT PRICE %d", websiteName, price)
@@ -47,7 +47,9 @@ func (n *SmtpNotifier) Notify(websiteName string, price int) {
 	auth := smtp.PlainAuth("", n.options.Auth.Username, n.options.Auth.Password, n.options.Auth.Hostname)
 	err := smtp.SendMail(n.options.Auth.Hostname+":25", auth, n.options.From, recipients, []byte(mailContent))
 	if err != nil {
-		errorLogger.Printf("[%s] failed to send email to %v: %v", websiteName, recipients, err)
+		errorLogger.Printf("[%s] failed to send email to %s: %v", websiteName, recipients, err)
+	} else {
+		infoLogger.Printf("[%s] notification sent by email to %s", websiteName, recipients)
 	}
 }
 

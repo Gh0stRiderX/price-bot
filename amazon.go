@@ -60,6 +60,6 @@ func (a *Amazon) getPrice(ctx context.Context) (string, error) {
 func (a *Amazon) getPriceActionList(price *string) []chromedp.Action {
 	return []chromedp.Action{
 		chromedp.Navigate(a.productUrl),
-		chromedp.InnerHTML("#priceblock_ourprice", price),
+		chromedp.Evaluate("(document.getElementById('priceblock_ourprice') || {innerHTML: '999'}).innerHTML", price),
 	}
 }

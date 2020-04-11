@@ -62,7 +62,7 @@ func main() {
 		minPrice:   330,
 	})
 
-	go fetch(taskCtx, 30*time.Second, 5*time.Second, notifier, &Amazon{
+	go fetch(taskCtx, 30*time.Second, 3*time.Second, notifier, &Amazon{
 		productUrl:     "https://www.amazon.nl/Nintendo-Switch-Console-Rood-Blauw/dp/B07WKNQ8JT",
 		minPrice:       330,
 		country:        "NL",
@@ -70,7 +70,7 @@ func main() {
 		lastSyncGauge:  amazonNLLastSync,
 	})
 
-	go fetch(taskCtx, 30*time.Second, 5*time.Second, notifier, &Amazon{
+	go fetch(taskCtx, 30*time.Second, 4*time.Second, notifier, &Amazon{
 		productUrl:     "https://www.amazon.fr/Nintendo-Switch-Console-Rood-Blauw/dp/B07WKNQ8JT",
 		minPrice:       330,
 		country:        "FR",

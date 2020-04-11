@@ -1,4 +1,4 @@
-FROM arm32v7/alpine:latest
+FROM chromedp/headless-shell:latest
 
 COPY price-bot /usr/bin/price-bot
 

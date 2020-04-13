@@ -32,7 +32,7 @@ func (cd *Cdiscount) getPrice(ctx context.Context) (float64, error) {
 	var price float64
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(cd.productUrl),
-		chromedp.Sleep(2*time.Second),
+		chromedp.Sleep(10*time.Second),
 		chromedp.Evaluate(cd.getPriceJS(), &price))
 	return price, err
 }

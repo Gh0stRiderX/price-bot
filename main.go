@@ -47,7 +47,15 @@ func main() {
 
 	notifier := NewSmtpNotifier(*stmpOptionsFilepath)
 
-	taskCtx, cancel := chromedp.NewContext(context.Background())
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		// faking user agent for usual human page to be displayed
+		chromedp.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"),
+	)
+
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+	defer cancel()
+
+	taskCtx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
 
 	go fetch(taskCtx, 30*time.Second, 0*time.Second, notifier, &MediaMarkt{

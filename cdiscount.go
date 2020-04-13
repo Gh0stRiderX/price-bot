@@ -29,7 +29,7 @@ func (cd *Cdiscount) FetchPrice(ctx context.Context) (float64, error) {
 	return p, nil
 }
 
-func (cd *Cdiscount) getPrice(ctx context.Context) (float64, error){
+func (cd *Cdiscount) getPrice(ctx context.Context) (float64, error) {
 	var price string
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(cd.productUrl),
@@ -41,8 +41,6 @@ func (cd *Cdiscount) getPrice(ctx context.Context) (float64, error){
 	return strconv.ParseFloat(price, 64)
 }
 
-func (cd *Cdiscount) getPriceJS() string{
-	return `
-		document.getElementsByClassName("price")[0].innerText.replace('€', '.')
-	`
+func (cd *Cdiscount) getPriceJS() string {
+	return `document.getElementsByClassName("price")[0].innerText.replace('€', '.')`
 }

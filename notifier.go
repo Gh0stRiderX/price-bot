@@ -8,7 +8,7 @@ import (
 )
 
 type Notifier interface {
-	Notify(websiteName string, price int)
+	Notify(websiteName string, price float64)
 }
 
 type SmtpCrendentials struct {
@@ -33,13 +33,13 @@ func NewSmtpNotifier(stmpOptionsFilepath string) *SmtpNotifier {
 	}
 }
 
-func (n *SmtpNotifier) Notify(websiteName string, price int) {
+func (n *SmtpNotifier) Notify(websiteName string, price float64) {
 	infoLogger.Printf("[%s] The product is available at price: %d", websiteName, price)
 
 	recipients := []string{n.options.To}
 	subject := fmt.Sprintf("[%s] AVAILABLE AT PRICE %d", websiteName, price)
 	mailContent := fmt.Sprintf(
-		"To: %s\r\n"+"Subject: %s\r\n"+"\r\n"+"The product is available at price %d.\r\n",
+		"To: %s\r\n"+"Subject: %s\r\n"+"\r\n"+"The product is available at price %f.\r\n",
 		recipients[0],
 		subject,
 		price)

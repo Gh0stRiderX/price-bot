@@ -10,52 +10,55 @@ import (
 
 type Bol struct {
 	productUrl string
-	minPrice   int
+	minPrice   float64
 }
 
 func (b *Bol) Name() string {
 	return "BOL"
 }
 
-func (b *Bol) MinPrice() int {
+func (b *Bol) MinPrice() float64 {
 	return b.minPrice
 }
 
-func (b *Bol) FetchPrice(ctx context.Context) (int, error) {
-	price, err := b.getPrice(ctx)
+func (b *Bol) FetchPrice(ctx context.Context) (float64, error) {
+	p, err := b.getPrice(ctx)
 	if err != nil {
-		return -1, fmt.Errorf("could not fetch price, got error %v", err)
+		return INVALID_PRICE, fmt.Errorf("could not fetch price, got error %v", err)
 	}
-	p, err := b.convertPrice(price)
-	if err != nil {
-		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
-	}
-	bolLastPrice.Set(float64(p))
+
+	bolLastPrice.Set(p)
 	bolLastSync.SetToCurrentTime()
 	return p, nil
 }
 
-func (b *Bol) convertPrice(price string) (int, error) {
-	p, err := strconv.Atoi(price)
+func (b *Bol) convertPrice(price string) (float64, error) {
+	p, err := strconv.ParseFloat(price, 64)
 	if err != nil {
 		return -1, err
 	}
 	return p, nil
 }
 
-func (b *Bol) getPrice(ctx context.Context) (string, error) {
-	var price string
-	err := chromedp.Run(ctx, b.getPriceActionList(&price)...)
-	if err != nil {
-		return "", err
-	}
-	return price, nil
+func (b *Bol) getPrice(ctx context.Context) (float64, error) {
+	var price float64
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(b.productUrl),
+		chromedp.Sleep(2*time.Second),
+		chromedp.Evaluate(b.getPriceJS(), &price))
+	return price, err
 }
 
-func (b *Bol) getPriceActionList(price *string) []chromedp.Action {
-	return []chromedp.Action{
-		chromedp.Navigate(b.productUrl),
-		chromedp.Sleep(2 * time.Second),
-		chromedp.Evaluate("(document.getElementsByClassName(\"promo-price\") || [{innerText: '999'}])[0].innerText.split('\\n')[0]", price),
-	}
+func (b *Bol) getPriceJS() string {
+	return fmt.Sprintf(`function convertPriceStringToFloat(price) {
+    return parseFloat(price.replace('\n', '.').replace('-', 0))
+}
+
+function getPrice() {
+    const priceElement = document.getElementsByClassName("promo-price")[0];
+    return priceElement && priceElement.innerText ? parseFloat(priceElement.innerText) : %d;
+}
+
+getPrice();
+`, INVALID_PRICE)
 }

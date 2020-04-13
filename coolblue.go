@@ -4,59 +4,50 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
-	"strconv"
-	"strings"
 )
 
 type CoolBlue struct {
 	productUrl string
-	minPrice   int
+	minPrice   float64
 }
 
 func (cb *CoolBlue) Name() string {
 	return "COOLBLUE"
 }
 
-func (cb *CoolBlue) MinPrice() int {
+func (cb *CoolBlue) MinPrice() float64 {
 	return cb.minPrice
 }
 
-func (cb *CoolBlue) FetchPrice(ctx context.Context) (int, error) {
+func (cb *CoolBlue) FetchPrice(ctx context.Context) (float64, error) {
 	price, err := cb.getPrice(ctx)
 	if err != nil {
-		return -1, fmt.Errorf("could not fetch price, got error %v", err)
+		return INVALID_PRICE, fmt.Errorf("could not fetch price, got error %v", err)
 	}
-	p, err := cb.convertPrice(price)
-	if err != nil {
-		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
-	}
-	coolblueLastPrice.Set(float64(p))
+	coolblueLastPrice.Set(price)
 	coolblueLastSync.SetToCurrentTime()
-	return p, nil
-}
-
-func (cb *CoolBlue) convertPrice(price string) (int, error) {
-	roundedUp := strings.Split(price, ",")[0]
-	p, err := strconv.Atoi(roundedUp)
-	if err != nil {
-		return -1, err
-	}
-	return p, nil
-}
-
-func (cb *CoolBlue) getPrice(ctx context.Context) (string, error) {
-	var price string
-	err := chromedp.Run(ctx, cb.getPriceActionList(&price)...)
-	if err != nil {
-		return "", err
-	}
 	return price, nil
 }
 
-func (cb *CoolBlue) getPriceActionList(price *string) []chromedp.Action {
-	return []chromedp.Action{
+func (cb *CoolBlue) getPrice(ctx context.Context) (float64, error) {
+	var price float64
+	err := chromedp.Run(ctx,
 		chromedp.Navigate(cb.productUrl),
-		// chromedp.WaitEnabled(".sales-price"),
-		chromedp.Evaluate("document.getElementsByClassName(\"sales-price__current\")[0].innerHTML", price),
-	}
+		chromedp.Evaluate(cb.getPriceJS(), &price))
+	return price, err
+}
+
+func (cb *CoolBlue) getPriceJS() string {
+	return fmt.Sprintf(`
+function convertPriceStringToFloat(price) {
+    return parseFloat(price.replace(',', '.').replace('-', 0))
+}
+
+function getPrice() {
+    const priceElement = document.getElementsByClassName("sales-price__current")[0]
+    return priceElement && priceElement.innerText ? parseFloat(priceElement.innerText) : %d;
+}
+
+getPrice();
+`, INVALID_PRICE)
 }

@@ -16,16 +16,19 @@ import (
 var (
 	debugLogger = log.New(os.Stdout, "[DEBUG  ] ", log.LstdFlags)
 	infoLogger  = log.New(os.Stdout, "[INFO   ] ", log.LstdFlags)
+	warnLogger  = log.New(os.Stdout, "[WARNING] ", log.LstdFlags)
 	errorLogger = log.New(os.Stderr, "[ERROR  ] ", log.LstdFlags)
 )
 
 type Website interface {
-	MinPrice() int
+	MinPrice() float64
 
 	Name() string
 
-	FetchPrice(ctx context.Context) (int, error)
+	FetchPrice(ctx context.Context) (float64, error)
 }
+
+const INVALID_PRICE = 9999999
 
 var (
 	stmpOptionsFilepath = flag.String("smtp-filepath", "/opt/config/smtp.json", "filepath to JSON SMTP options used to send the price notifications")
@@ -37,14 +40,7 @@ func main() {
 
 	notifier := NewSmtpNotifier(*stmpOptionsFilepath)
 
-	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.UserAgent("Pricebot/1.0"),
-	)
-
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
-	defer cancel()
-
-	taskCtx, cancel := chromedp.NewContext(allocCtx)
+	taskCtx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
 	go fetch(taskCtx, 30*time.Second, 0*time.Second, notifier, &MediaMarkt{
@@ -63,7 +59,7 @@ func main() {
 	})
 
 	go fetch(taskCtx, 30*time.Second, 3*time.Second, notifier, &Amazon{
-		productUrl:     "https://www.amazon.nl/Nintendo-Switch-Console-Rood-Blauw/dp/B07WKNQ8JT",
+		productUrl:     "http://amazon.nl/gp/offer-listing/B07WKNQ8JT",
 		minPrice:       330,
 		country:        "NL",
 		lastPriceGauge: amazonNLLastPrice,
@@ -71,7 +67,7 @@ func main() {
 	})
 
 	go fetch(taskCtx, 30*time.Second, 4*time.Second, notifier, &Amazon{
-		productUrl:     "https://www.amazon.fr/Nintendo-Switch-Console-Rood-Blauw/dp/B07WKNQ8JT",
+		productUrl:     "https://www.amazon.fr/gp/offer-listing/B07WKNQ8JT",
 		minPrice:       330,
 		country:        "FR",
 		lastPriceGauge: amazonFRLastPrice,
@@ -90,7 +86,7 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 	time.Sleep(initialDelay)
 	for {
 		infoLogger.Printf("[%s] Checking price...", w.Name())
-		newTab, cancel := chromedp.NewContext(ctx)
+		newTab, closeTab := chromedp.NewContext(ctx)
 		price, err := w.FetchPrice(newTab)
 		if err != nil {
 			errorLogger.Printf("[%s] %v", w.Name(), err)
@@ -98,10 +94,10 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 			if price <= w.MinPrice() {
 				notifier.Notify(w.Name(), price)
 			} else {
-				debugLogger.Printf("[%s] don't buy %d\n", w.Name(), price)
+				debugLogger.Printf("[%s] don't buy %.2f\n", w.Name(), price)
 			}
 		}
-		cancel()
+		closeTab()
 		time.Sleep(frequency)
 	}
 }

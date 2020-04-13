@@ -9,18 +9,18 @@ import (
 
 type MediaMarkt struct {
 	productUrl string
-	minPrice   int
+	minPrice   float64
 }
 
 func (m *MediaMarkt) Name() string {
 	return "MEDIAMARKT"
 }
 
-func (m *MediaMarkt) MinPrice() int {
+func (m *MediaMarkt) MinPrice() float64 {
 	return m.minPrice
 }
 
-func (m *MediaMarkt) FetchPrice(ctx context.Context) (int, error) {
+func (m *MediaMarkt) FetchPrice(ctx context.Context) (float64, error) {
 	price, err := m.getPrice(ctx)
 	if err != nil {
 		return -1, fmt.Errorf("could not fetch price, got error %v", err)
@@ -29,13 +29,13 @@ func (m *MediaMarkt) FetchPrice(ctx context.Context) (int, error) {
 	if err != nil {
 		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
 	}
-	mediamarktLastPrice.Set(float64(p))
+	mediamarktLastPrice.Set(p)
 	mediamarktLastSync.SetToCurrentTime()
 	return p, nil
 }
 
-func (m *MediaMarkt) convertPrice(price string) (int, error) {
-	p, err := strconv.Atoi(price)
+func (m *MediaMarkt) convertPrice(price string) (float64, error) {
+	p, err := strconv.ParseFloat(price, 64)
 	if err != nil {
 		return -1, err
 	}

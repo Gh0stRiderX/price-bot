@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/chromedp/chromedp"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"log"
@@ -95,6 +96,10 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 		if err != nil {
 			errorLogger.Printf("[%s] %v", w.Name(), err)
 		} else {
+
+			lastSync.With(prometheus.Labels{"website": w.Name()}).Set(price)
+			lastPriceObserved.With(prometheus.Labels{"website": w.Name()}).SetToCurrentTime()
+
 			if price <= w.MinPrice() {
 				notifier.Notify(w.Name(), price)
 			} else {

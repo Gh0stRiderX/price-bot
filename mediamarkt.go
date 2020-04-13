@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
-	"github.com/prometheus/client_golang/prometheus"
 	"strconv"
 )
 
@@ -24,29 +23,25 @@ func (m *MediaMarkt) MinPrice() float64 {
 func (m *MediaMarkt) FetchPrice(ctx context.Context) (float64, error) {
 	price, err := m.getPrice(ctx)
 	if err != nil {
-		return -1, fmt.Errorf("could not fetch price, got error %v", err)
+		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
 	p, err := m.convertPrice(price)
 	if err != nil {
-		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
+		return InvalidPrice, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
 	}
-	lastSync.With(prometheus.Labels{"website": m.Name()}).Set(p)
-	lastPriceObserved.With(prometheus.Labels{"website": m.Name()}).SetToCurrentTime()
 	return p, nil
 }
 
 func (m *MediaMarkt) convertPrice(price string) (float64, error) {
-	p, err := strconv.ParseFloat(price, 64)
-	if err != nil {
-		return -1, err
-	}
-	return p, nil
+	return strconv.ParseFloat(price, 64)
 }
 
 func (m *MediaMarkt) getPrice(ctx context.Context) (string, error) {
 	var price string
 	var ok bool
-	err := chromedp.Run(ctx, m.getPriceActionList(&price, &ok)...)
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(m.productUrl),
+		chromedp.AttributeValue("[itemprop='price']", "content", &price, &ok))
 	if err != nil {
 		return "", err
 	}
@@ -54,11 +49,4 @@ func (m *MediaMarkt) getPrice(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("failed to retrieve attribute value")
 	}
 	return price, nil
-}
-
-func (m *MediaMarkt) getPriceActionList(price *string, ok *bool) []chromedp.Action {
-	return []chromedp.Action{
-		chromedp.Navigate(m.productUrl),
-		chromedp.AttributeValue("[itemprop='price']", "content", price, ok),
-	}
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
-	"github.com/prometheus/client_golang/prometheus"
 	"time"
 )
 
@@ -27,9 +26,6 @@ func (a *Amazon) FetchPrice(ctx context.Context) (float64, error) {
 	if err != nil {
 		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
-
-	lastSync.With(prometheus.Labels{"website": a.Name()}).Set(p)
-	lastPriceObserved.With(prometheus.Labels{"website": a.Name()}).SetToCurrentTime()
 	return p, nil
 }
 

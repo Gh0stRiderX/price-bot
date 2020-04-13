@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
+	"github.com/prometheus/client_golang/prometheus"
 	"strconv"
 )
 
@@ -29,8 +30,8 @@ func (m *MediaMarkt) FetchPrice(ctx context.Context) (float64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("could not convert price %q to number, got error %v", price, err)
 	}
-	mediamarktLastPrice.Set(p)
-	mediamarktLastSync.SetToCurrentTime()
+	lastSync.With(prometheus.Labels{"website": m.Name()}).Set(p)
+	lastPriceObserved.With(prometheus.Labels{"website": m.Name()}).SetToCurrentTime()
 	return p, nil
 }
 

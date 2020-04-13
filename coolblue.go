@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type CoolBlue struct {
@@ -20,13 +21,13 @@ func (cb *CoolBlue) MinPrice() float64 {
 }
 
 func (cb *CoolBlue) FetchPrice(ctx context.Context) (float64, error) {
-	price, err := cb.getPrice(ctx)
+	p, err := cb.getPrice(ctx)
 	if err != nil {
 		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
-	coolblueLastPrice.Set(price)
-	coolblueLastSync.SetToCurrentTime()
-	return price, nil
+	lastSync.With(prometheus.Labels{"website": cb.Name()}).Set(p)
+	lastPriceObserved.With(prometheus.Labels{"website": cb.Name()}).SetToCurrentTime()
+	return p, nil
 }
 
 func (cb *CoolBlue) getPrice(ctx context.Context) (float64, error) {

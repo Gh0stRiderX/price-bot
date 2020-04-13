@@ -9,11 +9,9 @@ import (
 )
 
 type Amazon struct {
-	productUrl     string
-	minPrice       float64
-	country        string
-	lastPriceGauge prometheus.Gauge
-	lastSyncGauge  prometheus.Gauge
+	productUrl string
+	minPrice   float64
+	country    string
 }
 
 func (a *Amazon) Name() string {
@@ -30,8 +28,8 @@ func (a *Amazon) FetchPrice(ctx context.Context) (float64, error) {
 		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
 
-	a.lastPriceGauge.Set(p)
-	a.lastSyncGauge.SetToCurrentTime()
+	lastSync.With(prometheus.Labels{"website": a.Name()}).Set(p)
+	lastPriceObserved.With(prometheus.Labels{"website": a.Name()}).SetToCurrentTime()
 	return p, nil
 }
 

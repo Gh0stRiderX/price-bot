@@ -19,6 +19,14 @@ func (cb *CoolBlue) MinPrice() float64 {
 	return cb.minPrice
 }
 
+func (cb *CoolBlue) IsAvailable(ctx context.Context) (bool, error) {
+	var price bool
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(cb.productUrl),
+		chromedp.Evaluate(cb.isAvailableJS(), &price))
+	return price, err
+}
+
 func (cb *CoolBlue) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := cb.getPrice(ctx)
 	if err != nil {
@@ -48,4 +56,16 @@ function getPrice() {
 
 getPrice();
 `, InvalidPrice)
+}
+
+func (cb *CoolBlue) isAvailableJS() string {
+	// return true if at least one of the product variant is available
+	return `
+function isAvailable() {
+	const unavailable = document.querySelector('.text-color--available')
+    return unavailable !== undefined && unavailable !== null
+}
+
+isAvailable();
+`
 }

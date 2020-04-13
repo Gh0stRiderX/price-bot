@@ -21,6 +21,11 @@ func (a *Amazon) MinPrice() float64 {
 	return a.minPrice
 }
 
+func (a *Amazon) IsAvailable(_ context.Context) (bool, error) {
+	// an Amazon product is technically always in stock as it is not present if not
+	return true, nil
+}
+
 func (a *Amazon) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := a.getPrice(ctx)
 	if err != nil {

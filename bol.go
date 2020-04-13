@@ -20,6 +20,14 @@ func (b *Bol) MinPrice() float64 {
 	return b.minPrice
 }
 
+func (b *Bol) IsAvailable(ctx context.Context) (bool, error) {
+	var price bool
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(b.productUrl),
+		chromedp.Evaluate(b.isAvailableJS(), &price))
+	return price, err
+}
+
 func (b *Bol) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := b.getPrice(ctx)
 	if err != nil {
@@ -50,4 +58,18 @@ function getPrice() {
 
 getPrice();
 `, InvalidPrice)
+}
+
+func (b *Bol) isAvailableJS() string {
+	// return true if at least one of the product variant is available
+	return `
+function isAvailable() {
+	const inStockText = "Op voorraad"
+
+	const unavailable = document.querySelector('.buy-block__highlight')
+    return unavailable !== undefined && unavailable !== null && unavailable.innerText === inStockText
+}
+
+isAvailable();
+`
 }

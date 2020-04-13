@@ -26,6 +26,8 @@ type Website interface {
 	Name() string
 
 	FetchPrice(ctx context.Context) (float64, error)
+
+	IsAvailable(ctx context.Context) (bool, error)
 }
 
 const (
@@ -39,7 +41,7 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(lastPriceObserved, lastSync)
+	prometheus.MustRegister(lastPriceObservedGauge, lastSyncGauge)
 }
 
 func main() {
@@ -113,14 +115,24 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 		if err != nil {
 			errorLogger.Printf("[%s] %v", w.Name(), err)
 		} else {
+			lastPriceObservedGauge.With(prometheus.Labels{"website": w.Name()}).Set(price)
+			lastSyncGauge.With(prometheus.Labels{"website": w.Name()}).SetToCurrentTime()
 
-			lastPriceObserved.With(prometheus.Labels{"website": w.Name()}).Set(price)
-			lastSync.With(prometheus.Labels{"website": w.Name()}).SetToCurrentTime()
-
-			if price <= w.MinPrice() {
-				notifier.Notify(w.Name(), price)
-			} else {
+			if price > w.MinPrice() {
 				debugLogger.Printf("[%s] don't buy %.2f\n", w.Name(), price)
+			} else {
+				isAvailable, err := w.IsAvailable(newTab)
+				if err != nil {
+					errorLogger.Printf("[%s] %v", w.Name(), err)
+				} else {
+					if isAvailable {
+						isAvailableGauge.With(prometheus.Labels{"website": w.Name()}).Set(1)
+						notifier.Notify(w.Name(), price)
+					} else {
+						isAvailableGauge.With(prometheus.Labels{"website": w.Name()}).Set(0)
+						debugLogger.Printf("[%s] The product is NOT available (%.2f)\n", w.Name(), price)
+					}
+				}
 			}
 		}
 		closeTab()

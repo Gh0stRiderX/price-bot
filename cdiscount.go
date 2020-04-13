@@ -21,6 +21,10 @@ func (cd *Cdiscount) MinPrice() float64 {
 	return cd.minPrice
 }
 
+func (cd *Cdiscount) IsAvailable(_ context.Context) (bool, error) {
+	return true, nil // TODO
+}
+
 func (cd *Cdiscount) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := cd.getPrice(ctx)
 	if err != nil {

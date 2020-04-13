@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
-	"strconv"
 	"time"
 )
 
@@ -30,17 +29,25 @@ func (cd *Cdiscount) FetchPrice(ctx context.Context) (float64, error) {
 }
 
 func (cd *Cdiscount) getPrice(ctx context.Context) (float64, error) {
-	var price string
+	var price float64
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(cd.productUrl),
 		chromedp.Sleep(2*time.Second),
 		chromedp.Evaluate(cd.getPriceJS(), &price))
-	if err != nil {
-		return InvalidPrice, err
-	}
-	return strconv.ParseFloat(price, 64)
+	return price, err
 }
 
 func (cd *Cdiscount) getPriceJS() string {
-	return `document.getElementsByClassName("price")[0].innerText.replace('€', '.')`
+	return fmt.Sprintf(`
+function convertPriceStringToFloat(price) {
+    return parseFloat(price.replace('€', '.'))
+}
+
+function getPrice() {
+    const priceElement = document.getElementsByClassName("price")[0]
+    return priceElement && priceElement.innerText ? parseFloat(priceElement.innerText) : %d;
+}
+
+getPrice();
+`, InvalidPrice)
 }

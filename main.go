@@ -91,6 +91,11 @@ func main() {
 		country:    "DE",
 	})
 
+	go fetch(taskCtx, 30*time.Second, 6*time.Second, notifier, &Cdiscount{
+		productUrl: "https://www.cdiscount.com/jeux-pc-video-console/op/console-nintendo-switch-neon-nouvelle-version-me/f-103360203-45496452629.html",
+		minPrice:   ExpectedPrice,
+	})
+
 	mux := http.NewServeMux()
 	mux.Handle("/prometheus", promhttp.Handler())
 

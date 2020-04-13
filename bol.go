@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
-	"strconv"
 	"time"
 )
 
@@ -25,14 +24,6 @@ func (b *Bol) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := b.getPrice(ctx)
 	if err != nil {
 		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
-	}
-	return p, nil
-}
-
-func (b *Bol) convertPrice(price string) (float64, error) {
-	p, err := strconv.ParseFloat(price, 64)
-	if err != nil {
-		return -1, err
 	}
 	return p, nil
 }

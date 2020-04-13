@@ -34,7 +34,7 @@ func NewSmtpNotifier(stmpOptionsFilepath string) *SmtpNotifier {
 }
 
 func (n *SmtpNotifier) Notify(websiteName string, price float64) {
-	infoLogger.Printf("[%s] The product is available at price: %d", websiteName, price)
+	infoLogger.Printf("[%s] The product is available at %.2f", websiteName, price)
 
 	recipients := []string{n.options.To}
 	subject := fmt.Sprintf("[%s] AVAILABLE AT PRICE %d", websiteName, price)

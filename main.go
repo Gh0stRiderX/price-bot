@@ -41,7 +41,7 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(lastPriceObservedGauge, lastSyncGauge)
+	prometheus.MustRegister(lastPriceObservedGauge, lastSyncGauge, isAvailableGauge)
 }
 
 func main() {
@@ -105,34 +105,43 @@ func main() {
 	errorLogger.Fatal(http.ListenAndServe(":"+strconv.Itoa(*port), handler))
 }
 
+func availabilityToNumber(isAvailable bool) float64 {
+	if isAvailable {
+		return 1
+	} else {
+		return 0
+	}
+}
+
 func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Duration, notifier Notifier, w Website) {
 	infoLogger.Printf("[%s] Starting fetching routine in %v", w.Name(), initialDelay)
 	time.Sleep(initialDelay)
 	for {
-		infoLogger.Printf("[%s] Checking price...", w.Name())
 		newTab, closeTab := chromedp.NewContext(ctx)
-		price, err := w.FetchPrice(newTab)
-		if err != nil {
-			errorLogger.Printf("[%s] %v", w.Name(), err)
+
+		infoLogger.Printf("[%s] Checking price...", w.Name())
+		price, errPrice := w.FetchPrice(newTab)
+		if errPrice != nil {
+			errorLogger.Printf("[%s] %v", w.Name(), errPrice)
 		} else {
 			lastPriceObservedGauge.With(prometheus.Labels{"website": w.Name()}).Set(price)
+		}
+
+		infoLogger.Printf("[%s] Checking availability...", w.Name())
+		isAvailable, errAvailable := w.IsAvailable(newTab)
+		if errAvailable != nil {
+			errorLogger.Printf("[%s] %v", w.Name(), errAvailable)
+		} else {
+			isAvailableGauge.With(prometheus.Labels{"website": w.Name()}).Set(availabilityToNumber(isAvailable))
+		}
+
+		if errPrice == nil && errAvailable == nil {
 			lastSyncGauge.With(prometheus.Labels{"website": w.Name()}).SetToCurrentTime()
 
-			if price > w.MinPrice() {
-				debugLogger.Printf("[%s] don't buy %.2f\n", w.Name(), price)
+			if price <= w.MinPrice() && isAvailable {
+				notifier.Notify(w.Name(), price)
 			} else {
-				isAvailable, err := w.IsAvailable(newTab)
-				if err != nil {
-					errorLogger.Printf("[%s] %v", w.Name(), err)
-				} else {
-					if isAvailable {
-						isAvailableGauge.With(prometheus.Labels{"website": w.Name()}).Set(1)
-						notifier.Notify(w.Name(), price)
-					} else {
-						isAvailableGauge.With(prometheus.Labels{"website": w.Name()}).Set(0)
-						debugLogger.Printf("[%s] The product is NOT available (%.2f)\n", w.Name(), price)
-					}
-				}
+				debugLogger.Printf("[%s] The product is *not* available OR too expensive (%.2f)\n", w.Name(), price)
 			}
 		}
 		closeTab()

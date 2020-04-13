@@ -15,7 +15,7 @@ var (
 	lastPriceObserved = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "price_bot_website_last_price_observed",
-			Help: "The timestamp on which the website price was last synced",
+			Help: "The last price observed for the website",
 		},
 		[]string{"website"},
 	)

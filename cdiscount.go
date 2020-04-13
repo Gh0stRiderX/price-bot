@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/chromedp/chromedp"
+	"strconv"
 	"time"
 )
 
@@ -29,25 +30,17 @@ func (cd *Cdiscount) FetchPrice(ctx context.Context) (float64, error) {
 }
 
 func (cd *Cdiscount) getPrice(ctx context.Context) (float64, error) {
-	var price float64
+	var price string
+	var ok bool
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(cd.productUrl),
 		chromedp.Sleep(10*time.Second),
-		chromedp.Evaluate(cd.getPriceJS(), &price))
-	return price, err
-}
-
-func (cd *Cdiscount) getPriceJS() string {
-	return fmt.Sprintf(`
-function convertPriceStringToFloat(price) {
-    return parseFloat(price.replace('€', '.'))
-}
-
-function getPrice() {
-    const priceElement = document.getElementsByClassName("price")[0]
-    return priceElement && priceElement.innerText ? convertPriceStringToFloat(priceElement.innerText) : %d;
-}
-
-getPrice();
-`, InvalidPrice)
+		chromedp.AttributeValue("[itemprop='price']", "content", &price, &ok))
+	if err != nil {
+		return InvalidPrice, err
+	}
+	if !ok {
+		return InvalidPrice, fmt.Errorf("failed to retrieve attribute value")
+	}
+	return strconv.ParseFloat(price, 64)
 }

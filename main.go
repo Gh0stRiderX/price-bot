@@ -61,27 +61,21 @@ func main() {
 	})
 
 	go fetch(taskCtx, 30*time.Second, 3*time.Second, notifier, &Amazon{
-		productUrl:     "http://amazon.nl/gp/offer-listing/B07WKNQ8JT",
-		minPrice:       ExpectedPrice,
-		country:        "NL",
-		lastPriceGauge: amazonNLLastPrice,
-		lastSyncGauge:  amazonNLLastSync,
+		productUrl: "http://amazon.nl/gp/offer-listing/B07WKNQ8JT",
+		minPrice:   ExpectedPrice,
+		country:    "NL",
 	})
 
 	go fetch(taskCtx, 30*time.Second, 4*time.Second, notifier, &Amazon{
-		productUrl:     "https://www.amazon.fr/gp/offer-listing/B07WKNQ8JT",
-		minPrice:       ExpectedPrice,
-		country:        "FR",
-		lastPriceGauge: amazonFRLastPrice,
-		lastSyncGauge:  amazonFRLastSync,
+		productUrl: "https://www.amazon.fr/gp/offer-listing/B07WKNQ8JT",
+		minPrice:   ExpectedPrice,
+		country:    "FR",
 	})
 
 	go fetch(taskCtx, 30*time.Second, 5*time.Second, notifier, &Amazon{
-		productUrl:     "https://www.amazon.de/gp/offer-listing/B07WKNQ8JT",
-		minPrice:       ExpectedPrice,
-		country:        "DE",
-		lastPriceGauge: amazonDELastPrice,
-		lastSyncGauge:  amazonDELastSync,
+		productUrl: "https://www.amazon.de/gp/offer-listing/B07WKNQ8JT",
+		minPrice:   ExpectedPrice,
+		country:    "DE",
 	})
 
 	mux := http.NewServeMux()

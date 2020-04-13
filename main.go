@@ -101,8 +101,8 @@ func fetch(ctx context.Context, frequency time.Duration, initialDelay time.Durat
 			errorLogger.Printf("[%s] %v", w.Name(), err)
 		} else {
 
-			lastSync.With(prometheus.Labels{"website": w.Name()}).Set(price)
-			lastPriceObserved.With(prometheus.Labels{"website": w.Name()}).SetToCurrentTime()
+			lastPriceObserved.With(prometheus.Labels{"website": w.Name()}).Set(price)
+			lastSync.With(prometheus.Labels{"website": w.Name()}).SetToCurrentTime()
 
 			if price <= w.MinPrice() {
 				notifier.Notify(w.Name(), price)

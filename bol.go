@@ -24,7 +24,7 @@ func (b *Bol) MinPrice() float64 {
 func (b *Bol) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := b.getPrice(ctx)
 	if err != nil {
-		return INVALID_PRICE, fmt.Errorf("could not fetch price, got error %v", err)
+		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
 
 	bolLastPrice.Set(p)
@@ -60,5 +60,5 @@ function getPrice() {
 }
 
 getPrice();
-`, INVALID_PRICE)
+`, InvalidPrice)
 }

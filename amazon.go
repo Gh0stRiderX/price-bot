@@ -27,7 +27,7 @@ func (a *Amazon) MinPrice() float64 {
 func (a *Amazon) FetchPrice(ctx context.Context) (float64, error) {
 	p, err := a.getPrice(ctx)
 	if err != nil {
-		return INVALID_PRICE, fmt.Errorf("could not fetch price, got error %v", err)
+		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
 
 	a.lastPriceGauge.Set(p)
@@ -70,5 +70,5 @@ function getLowestPriceFromListView() {
 }
 
 getLowestPriceFromListView();
-`, INVALID_PRICE)
+`, InvalidPrice)
 }

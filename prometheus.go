@@ -46,4 +46,12 @@ var (
 		Name: "price_bot_amazon_fr_last_price",
 		Help: "Last price observed on Amazon FR",
 	})
+	amazonDELastSync = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "price_bot_amazon_de_last_sync",
+		Help: "The timestamp on which Amazon FR price was last synced",
+	})
+	amazonDELastPrice = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "price_bot_amazon_de_last_price",
+		Help: "Last price observed on Amazon DE",
+	})
 )

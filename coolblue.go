@@ -22,7 +22,7 @@ func (cb *CoolBlue) MinPrice() float64 {
 func (cb *CoolBlue) FetchPrice(ctx context.Context) (float64, error) {
 	price, err := cb.getPrice(ctx)
 	if err != nil {
-		return INVALID_PRICE, fmt.Errorf("could not fetch price, got error %v", err)
+		return InvalidPrice, fmt.Errorf("could not fetch price, got error %v", err)
 	}
 	coolblueLastPrice.Set(price)
 	coolblueLastSync.SetToCurrentTime()
@@ -49,5 +49,5 @@ function getPrice() {
 }
 
 getPrice();
-`, INVALID_PRICE)
+`, InvalidPrice)
 }

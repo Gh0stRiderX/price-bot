@@ -16,7 +16,6 @@ import (
 var (
 	debugLogger = log.New(os.Stdout, "[DEBUG  ] ", log.LstdFlags)
 	infoLogger  = log.New(os.Stdout, "[INFO   ] ", log.LstdFlags)
-	warnLogger  = log.New(os.Stdout, "[WARNING] ", log.LstdFlags)
 	errorLogger = log.New(os.Stderr, "[ERROR  ] ", log.LstdFlags)
 )
 
@@ -28,7 +27,10 @@ type Website interface {
 	FetchPrice(ctx context.Context) (float64, error)
 }
 
-const INVALID_PRICE = 9999999
+const (
+	ExpectedPrice = 330
+	InvalidPrice  = 9999999
+)
 
 var (
 	stmpOptionsFilepath = flag.String("smtp-filepath", "/opt/config/smtp.json", "filepath to JSON SMTP options used to send the price notifications")
@@ -45,22 +47,22 @@ func main() {
 
 	go fetch(taskCtx, 30*time.Second, 0*time.Second, notifier, &MediaMarkt{
 		productUrl: "https://www.mediamarkt.nl/nl/product/_nintendo-switch-rood-en-blauw-2019-revisie-1635020.html",
-		minPrice:   330,
+		minPrice:   ExpectedPrice,
 	})
 
 	go fetch(taskCtx, 30*time.Second, 1*time.Second, notifier, &Bol{
 		productUrl: "https://www.bol.com/nl/p/nintendo-switch-console-met-35-eshop-tegoed-voucher-32gb-rood-blauw/9200000114613417/",
-		minPrice:   330,
+		minPrice:   ExpectedPrice,
 	})
 
 	go fetch(taskCtx, 30*time.Second, 2*time.Second, notifier, &CoolBlue{
 		productUrl: "https://www.coolblue.nl/en/product/838252/nintendo-switch-2019-upgrade-red-blue.html",
-		minPrice:   330,
+		minPrice:   ExpectedPrice,
 	})
 
 	go fetch(taskCtx, 30*time.Second, 3*time.Second, notifier, &Amazon{
 		productUrl:     "http://amazon.nl/gp/offer-listing/B07WKNQ8JT",
-		minPrice:       330,
+		minPrice:       ExpectedPrice,
 		country:        "NL",
 		lastPriceGauge: amazonNLLastPrice,
 		lastSyncGauge:  amazonNLLastSync,
@@ -68,10 +70,18 @@ func main() {
 
 	go fetch(taskCtx, 30*time.Second, 4*time.Second, notifier, &Amazon{
 		productUrl:     "https://www.amazon.fr/gp/offer-listing/B07WKNQ8JT",
-		minPrice:       330,
+		minPrice:       ExpectedPrice,
 		country:        "FR",
 		lastPriceGauge: amazonFRLastPrice,
 		lastSyncGauge:  amazonFRLastSync,
+	})
+
+	go fetch(taskCtx, 30*time.Second, 5*time.Second, notifier, &Amazon{
+		productUrl:     "https://www.amazon.de/gp/offer-listing/B07WKNQ8JT",
+		minPrice:       ExpectedPrice,
+		country:        "DE",
+		lastPriceGauge: amazonDELastPrice,
+		lastSyncGauge:  amazonDELastSync,
 	})
 
 	mux := http.NewServeMux()

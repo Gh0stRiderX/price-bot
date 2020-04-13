@@ -45,7 +45,7 @@ function convertPriceStringToFloat(price) {
 
 function getPrice() {
     const priceElement = document.getElementsByClassName("price")[0]
-    return priceElement && priceElement.innerText ? parseFloat(priceElement.innerText) : %d;
+    return priceElement && priceElement.innerText ? convertPriceStringToFloat(priceElement.innerText) : %d;
 }
 
 getPrice();

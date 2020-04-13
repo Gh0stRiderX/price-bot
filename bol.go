@@ -38,13 +38,14 @@ func (b *Bol) getPrice(ctx context.Context) (float64, error) {
 }
 
 func (b *Bol) getPriceJS() string {
-	return fmt.Sprintf(`function convertPriceStringToFloat(price) {
+	return fmt.Sprintf(`
+function convertPriceStringToFloat(price) {
     return parseFloat(price.replace('\n', '.').replace('-', 0))
 }
 
 function getPrice() {
     const priceElement = document.getElementsByClassName("promo-price")[0];
-    return priceElement && priceElement.innerText ? parseFloat(priceElement.innerText) : %d;
+    return priceElement && priceElement.innerText ? convertPriceStringToFloat(priceElement.innerText) : %d;
 }
 
 getPrice();
